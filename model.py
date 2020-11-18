@@ -1315,7 +1315,7 @@ class SummarizationModel(object):
 		"""Add the placeholders, model, global step, train_op and summaries to the graph"""
 		tf.logging.info('Building graph...')
 		t0 = time.time()
-    		with tf.device('/gpu:0'):
+		with tf.device('/gpu:0'):
 			self._add_placeholders()
                 
 			self._add_seq2seq()
