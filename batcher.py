@@ -183,7 +183,7 @@ class Batch(object):
 			 hps: hyperparameters
 			 vocab: Vocabulary object
 		"""
-		self.pad_id = vocab.word2id(data.PAD_TOKEN)  # id of the PAD token used to pad sequences
+		self.pad_id = vocab.word2id(data.PAD_TOKEN)  # id of the PAD token used to pad sequences  pad_id_value = 1
 		# self.word_adj_in = None
 		# self.word_adj_out = None
 		self.init_encoder_seq(example_list, hps)  # initialize the input to the encoder
@@ -223,7 +223,7 @@ class Batch(object):
 		for ex in example_list:
 
 			ex.pad_encoder_input(max_enc_seq_len, self.pad_id)
-			if hps.use_elmo.value:
+			if hps.use_elmo.value:  #False
 				ex.pad_encoder_input_raw(max_enc_seq_len)
 
 		# Initialize the numpy arrays

@@ -105,7 +105,7 @@ class SummarizationModel(object):
 			if hps.use_glove.value:
 				self._vocab.set_glove_embedding(hps.glove_path.value, hps.emb_dim.value)
 
-		if hps.use_regularizer.value:
+		if hps.use_regularizer.value: #False
 			self.beta_l2 = hps.beta_l2.value
 		else:
 			self.beta_l2 = 0.0
@@ -124,26 +124,26 @@ class SummarizationModel(object):
 		self._enc_padding_mask = tf.placeholder(tf.float32, [hps.batch_size.value, None], name='enc_padding_mask')
 		self._enc_bert_mask_id = tf.placeholder(tf.int32, [hps.batch_size.value, None], name='enc_bert_mask_id')
 		self._enc_segment_id = tf.placeholder(tf.int32, [hps.batch_size.value, None], name='enc_segment_id')		
-		if FLAGS.use_elmo:
+		if FLAGS.use_elmo: #False
 			self._enc_batch_raw = tf.placeholder(tf.string, [hps.batch_size.value,None], name='enc_batch_raw')
 
 
-		if FLAGS.query_encoder:
+		if FLAGS.query_encoder: #True
 			self._query_batch = tf.placeholder(tf.int32, [hps.batch_size.value, None], name='query_batch')
 			self._query_lens = tf.placeholder(tf.int32, [hps.batch_size.value], name='query_lens')
 			self._query_padding_mask = tf.placeholder(tf.float32, [hps.batch_size.value, None], name='query_padding_mask')
 			self._query_bert_mask_id = tf.placeholder(tf.int32, [hps.batch_size.value, None],name='query_bert_mask_id') 
 			self._query_segment_id = tf.placeholder(tf.int32, [hps.batch_size.value, None], name='query_segment_id')
-			if FLAGS.use_query_elmo:
+			if FLAGS.use_query_elmo: #False
 				self._query_batch_raw = tf.placeholder(tf.string, [hps.batch_size.value, None], name='query_batch_raw')
 
 
-		if FLAGS.pointer_gen:
+		if FLAGS.pointer_gen: #True
 			self._enc_batch_extend_vocab = tf.placeholder(tf.int32, [hps.batch_size.value, None],
 														  name='enc_batch_extend_vocab')
 			self._max_art_oovs = tf.placeholder(tf.int32, [], name='max_art_oovs')
 
-		if FLAGS.word_gcn:
+		if FLAGS.word_gcn: #True
 			self._word_adj_in = [
 				{lbl: tf.sparse_placeholder(tf.float32, shape=[None, None], name='word_adj_in_{}'.format(lbl)) for lbl
 				 in range(hps.num_word_dependency_labels)} for _ in range(hps.batch_size.value)]
@@ -155,18 +155,18 @@ class SummarizationModel(object):
 			else:
 				self._word_gcn_dropout = tf.placeholder_with_default(1.0, shape=(), name='dropout')
 			
-			if FLAGS.use_coref_graph:
+			if FLAGS.use_coref_graph: #False
 				self._word_adj_in_coref = [tf.sparse_placeholder(tf.float32, shape=[None, None], name='word_adj_in_coref') for _ in range(hps.batch_size.value)]
 				self._word_adj_out_coref = [tf.sparse_placeholder(tf.float32, shape=[None, None], name='word_adj_out_coref') for _ in range(hps.batch_size.value)]
-			if FLAGS.use_entity_graph:
+			if FLAGS.use_entity_graph: #False
 				self._word_adj_entity = [tf.sparse_placeholder(tf.float32, shape=[None, None], name='word_adj_entity') for _ in range(hps.batch_size.value)]
-			if FLAGS.use_lexical_graph:
+			if FLAGS.use_lexical_graph: #False
 				self._word_adj_lexical = [tf.sparse_placeholder(tf.float32, shape=[None, None], name='word_adj_lexical') for _ in range(hps.batch_size.value)]
 
 
 		self._max_word_seq_len = tf.placeholder(tf.int32, shape=(), name='max_word_seq_len')
 	
-		if FLAGS.query_gcn:
+		if FLAGS.query_gcn: #False
 			self._query_adj_in = [
 				{lbl: tf.sparse_placeholder(tf.float32, shape=[None, None], name='query_adj_in_{}'.format(lbl)) for lbl
 				 in range(hps.num_word_dependency_labels)} for _ in range(hps.batch_size.value)]
@@ -212,24 +212,24 @@ class SummarizationModel(object):
 		feed_dict[self._epoch_num] = batch.epoch_num
 
 
-		if FLAGS.use_elmo:
+		if FLAGS.use_elmo: #False
 			feed_dict[self._enc_batch_raw] = batch.enc_batch_raw
 
-		if FLAGS.query_encoder:
+		if FLAGS.query_encoder: #True
 			feed_dict[self._query_batch] = batch.query_batch
 			feed_dict[self._query_lens] = batch.query_lens
 			feed_dict[self._query_padding_mask] = batch.query_padding_mask
 			feed_dict[self._query_bert_mask_id] = batch.query_bert_mask_id
 			feed_dict[self._query_segment_id] = batch.query_segment_id
-			if FLAGS.use_query_elmo:
+			if FLAGS.use_query_elmo: #False
 				feed_dict[self._query_batch_raw] = batch.query_batch_raw
 
 
-		if FLAGS.pointer_gen:
+		if FLAGS.pointer_gen: #True
 			feed_dict[self._enc_batch_extend_vocab] = batch.enc_batch_extend_vocab
 			feed_dict[self._max_art_oovs] = batch.max_art_oovs
 
-		if FLAGS.word_gcn:
+		if FLAGS.word_gcn: #True
 			feed_dict[self._max_word_seq_len] = batch.max_word_len
 			word_adj_in = batch.word_adj_in
 			word_adj_out = batch.word_adj_out
@@ -245,7 +245,7 @@ class SummarizationModel(object):
 						values=word_adj_out[i][lbl].data,
 						dense_shape=word_adj_out[i][lbl].shape)
 			
-			if FLAGS.use_coref_graph:
+			if FLAGS.use_coref_graph: #False
 				word_adj_out_coref = batch.word_adj_out_coref
 				word_adj_in_coref = batch.word_adj_in_coref
 			
@@ -261,7 +261,7 @@ class SummarizationModel(object):
 						values=word_adj_in_coref[i].data,
 						dense_shape=word_adj_in_coref[i].shape)
 			
-			if FLAGS.use_entity_graph:
+			if FLAGS.use_entity_graph: #False
 				word_adj_entity = batch.word_adj_entity
 				for i in range(hps.batch_size.value):
 					feed_dict[self._word_adj_entity[i]] = tf.SparseTensorValue(
@@ -269,7 +269,7 @@ class SummarizationModel(object):
 						values=word_adj_entity[i].data,
 						dense_shape=word_adj_entity[i].shape)
 
-			if FLAGS.use_lexical_graph:
+			if FLAGS.use_lexical_graph: #False
 				word_adj_lexical = batch.word_adj_lexical
 				for i in range(hps.batch_size.value):
 					feed_dict[self._word_adj_lexical[i]] = tf.SparseTensorValue(
@@ -278,7 +278,7 @@ class SummarizationModel(object):
 						dense_shape=word_adj_lexical[i].shape)
 				
 
-		if FLAGS.query_gcn:
+		if FLAGS.query_gcn: #False
 			feed_dict[self._max_query_seq_len] = batch.max_query_len
 			query_adj_in = batch.query_adj_in
 			query_adj_out = batch.query_adj_out
